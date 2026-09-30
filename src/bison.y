@@ -94,7 +94,87 @@ instEnSal
        : READ_ PARA_ ID_ PARC_ PYC_
        | PRINT_ PARA_ expre PARC_ PYC_
        ;
+
 instSelec
        : IF_ PARA_ expre PARC_ inst ELSE_ inst
        ;
+instIter
+	: FOR_ PARA_ expre PARC_ inst ELSE_ inst       
+       ;
+expreOP
+	: // lambda(vacío)//
+	| expre
+	;
+expre
+	: expreLogic
+	| ID_ ASIG_ expre
+	| ID_ CORCHA_ expre CORCHC_ ASIG_ expre
+	;
+expreLogic
+        : expreIgual
+        | expreLogic opLogic expreIgual
+        ;
+expreIgual
+        : expreRel
+        | expreIgual opIgual expreRel
+        ;
+expreRel
+        : expreAd
+        | expreRel opRel expreAd
+        ;
+expreAd
+        : expreMul
+        | expreAd opAd expreMul
+        ;
+expreMul
+        : expreUna
+        | expreMul opMul expreUna
+        ;
+expreUna
+        : expreSufi
+        | opUna expreUna
+        ;
+expreSufi
+        : const
+        | PARA_ expre PARC_
+        | ID_
+        | ID_ CORCHA_ expre CORCHC_
+        | ID_ PARA_ paramAct PARC_
+        ;
+paramAct
+        : // lambda (vacío) //
+        | listParamAct
+        ;
+listParamAct
+        : expre
+        | expre COMA_ listParamAct
+        ;
+opLogic
+        : AND_
+        | OR_
+        ;
+opIgual
+        : EGU_
+        | NEQ_
+        ;
+opRel
+        : MAY_
+        | MEN_
+        | GTE_
+        | LTE_
+        ;
+opAd
+        : MAS_
+        | MENOS_
+        ;
+opMul
+        : POR_
+        | DIV_
+        ;
+opUna
+        : MAS_
+        | MENOS_
+        ; NOT_
+        ;
+
 %%
