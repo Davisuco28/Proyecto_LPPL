@@ -6,9 +6,7 @@ extern int yylineno;
 extern int yylex(void);
 extern int verbosidad;
 
-void yyerror(const char *msg) {
-    fprintf(stderr, "\nError sintactico en la linea %d: %s\n", yylineno, msg);
-}
+
 %}
 
 %token INT_ BOOL_ TRUE_ FALSE_ IF_ ELSE_ FOR_ SWITCH_
