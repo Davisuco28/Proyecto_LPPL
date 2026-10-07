@@ -1,4 +1,5 @@
 %{
+#include <stdio.h>
 #include "header.h"
 
 extern int yylineno;
@@ -6,7 +7,7 @@ extern int yylex(void);
 extern int verbosidad;
 
 void yyerror(const char *msg) {
-       fprint(stderr, "\nError sintactico en la linea %d: %s\n", yylineno, msg);
+    fprintf(stderr, "\nError sintactico en la linea %d: %s\n", yylineno, msg);
 }
 %}
 
@@ -20,161 +21,197 @@ void yyerror(const char *msg) {
 %%
 
 programa
-       : listDecla
-       ;
+        : listDecla
+        ;
+
 listDecla
-       : listDecla
-       | listDecla listDecla
-       ;
+        : decla
+        | listDecla decla
+        ;
+
 decla
-       : declaVar
-       | declaFunc
-       ;
+        : declaVar
+        | declaFunc
+        ;
+
 declaVar
-       : tipoSimp ID_ PYC_
-       | tipoSimp ID_ ASIG_ const PYC_
-       | tipoSimp ID_ CORA_ CTE_ CORC_ PYC_
-       ;
+        : tipoSimp ID_ PYC_
+        | tipoSimp ID_ ASIG_ const PYC_
+        | tipoSimp ID_ CORA_ CTE_ CORC_ PYC_
+        ;
+
 const
-       : CTE_
-       | TRUE_
-       | FALSE_
-       ;
+        : CTE_
+        | TRUE_
+        | FALSE_
+        ;
+
 tipoSimp
-       : INT_
-       | BOOL_
-       ;
+        : INT_
+        | BOOL_
+        ;
+
 declaFunc
-       : tipoSimp ID_ PARA_ paraForm PARC_ bloque
-       ;
+        : tipoSimp ID_ PARA_ paramForm PARC_ bloque
+        ;
+
 paramForm
-       : // lambda //
-       | listParamForm
-       ;
+        : /* lambda */
+        | listParamForm
+        ;
+
 listParamForm
-       : tipoSimp ID_
-       | tipoSimp ID_ COMA_ listParamForm
-       ;
+        : tipoSimp ID_
+        | tipoSimp ID_ COMA_ listParamForm
+        ;
+
 bloque
-       : LLAVA_ declaVarLocal listInt RETURN_ expre PYC_ LLAVC_
-       ;
+        : LLAVA_ declaVarLocal listInst RETURN_ expre PYC_ LLAVC_
+        ;
+
 declaVarLocal
-       : // lambda //
-       | declaVarLocal declaVar
-       ;
-listInt
-       : // lambda //
-       | listInt inst
-       ;
+        : /* lambda */
+        | declaVarLocal declaVar
+        ;
+
+listInst
+        : /* lambda */
+        | listInst inst
+        ;
+
 inst
-       : LLAVA_ listInt LLAVC_
-       | instExpre
-       | instEntSal
-       | instSelec
-       | instIter
-       | instSwitch
-       ;
+        : LLAVA_ listInst LLAVC_
+        | instExpre
+        | instEntSal
+        | instSelec
+        | instIter
+        | instSwitch
+        ;
+
 instSwitch
-       : SWITCH_ ID_ LLAVA_ Less Equal Greater LLAVC_
-       ;
+        : SWITCH_ ID_ LLAVA_ Less Equal Greater LLAVC_
+        ;
+
 Less
-       : LESS_ inst
-       ;
+        : LESS_ inst
+        ;
+
 Equal
-       : EQUAL_ inst
-       ;
+        : EQUAL_ inst
+        ;
+
 Greater
-       : GREATER_ inst
-       ;
+        : GREATER_ inst
+        ;
+
 instExpre
-       : expre PYC_
-       | PYC_
-       ;
-instEnSal
-       : READ_ PARA_ ID_ PARC_ PYC_
-       | PRINT_ PARA_ expre PARC_ PYC_
-       ;
+        : expre PYC_
+        | PYC_
+        ;
+
+instEntSal
+        : READ_ PARA_ ID_ PARC_ PYC_
+        | PRINT_ PARA_ expre PARC_ PYC_
+        ;
 
 instSelec
-       : IF_ PARA_ expre PARC_ inst ELSE_ inst
-       ;
+        : IF_ PARA_ expre PARC_ inst ELSE_ inst
+        ;
+
 instIter
-	: FOR_ PARA_ expre PARC_ inst ELSE_ inst       
-       ;
+        : FOR_ PARA_ expreOP PYC_ expre PYC_ expreOP PARC_ inst
+        ;
+
 expreOP
-	: // lambda(vacío)//
-	| expre
-	;
+        : /* lambda */
+        | expre
+        ;
+
 expre
-	: expreLogic
-	| ID_ ASIG_ expre
-	| ID_ CORCHA_ expre CORCHC_ ASIG_ expre
-	;
+        : expreLogic
+        | ID_ ASIG_ expre
+        | ID_ CORA_ expre CORC_ ASIG_ expre
+        ;
+
 expreLogic
         : expreIgual
         | expreLogic opLogic expreIgual
         ;
+
 expreIgual
         : expreRel
         | expreIgual opIgual expreRel
         ;
+
 expreRel
         : expreAd
         | expreRel opRel expreAd
         ;
+
 expreAd
         : expreMul
         | expreAd opAd expreMul
         ;
+
 expreMul
         : expreUna
         | expreMul opMul expreUna
         ;
+
 expreUna
         : expreSufi
         | opUna expreUna
         ;
+
 expreSufi
         : const
         | PARA_ expre PARC_
         | ID_
-        | ID_ CORCHA_ expre CORCHC_
+        | ID_ CORA_ expre CORC_
         | ID_ PARA_ paramAct PARC_
         ;
+
 paramAct
-        : // lambda (vacío) //
+        : /* lambda */
         | listParamAct
         ;
+
 listParamAct
         : expre
         | expre COMA_ listParamAct
         ;
+
 opLogic
         : AND_
         | OR_
         ;
+
 opIgual
-        : EGU_
-        | NEQ_
+        : IGUAL_
+        | DIF_
         ;
+
 opRel
-        : MAY_
-        | MEN_
-        | GTE_
-        | LTE_
+        : MAYOR_
+        | MENOR_
+        | MAYORIGUAL_
+        | MENORIGUAL_
         ;
+
 opAd
         : MAS_
         | MENOS_
         ;
+
 opMul
         : POR_
         | DIV_
         ;
+
 opUna
         : MAS_
         | MENOS_
-        ; NOT_
+        | NOT_
         ;
 
 %%
