@@ -50,7 +50,6 @@ comentario     "//".*
 "}"	       	   { retornar (LLAVC_);    }
 ";"	       	   { retornar (PYC_);      }
 ","	       	   { retornar (COMA_);     }
-{entero}       { retornar (CTE_);      }
 "<"	       	   { retornar (MAYOR_);    }
 ">"	       	   { retornar (MENOR_);    }
 "!"	       	   { retornar (NOT_);      }
