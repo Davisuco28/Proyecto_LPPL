@@ -5,8 +5,9 @@
 #include <stdio.h>
 #include <string.h>
 #include "header.h"
+#include "asin.h"
 
-#define  retornar(x) {if (verbosidad) ECHO; }
+#define  retornar(x) {if (verbosidad) ECHO; return(x);}
 %}
 /*-----------------------------------------------------------------------------
   Estas opciones evitan "warnings" innecesarios y permiten obtener el
@@ -37,22 +38,22 @@ comentario     "//".*
 "||"           { retornar (OR_); }
 
 
-"+"	       	   { retornar (MAS_);      }
-"="	       	   { retornar (ASIG_);     }
+"+"	       { retornar (MAS_);      }
+"="	       { retornar (ASIG_);     }
 "-"            { retornar (MENOS_);    }
 "*"            { retornar (POR_);      }
 "/"            { retornar (DIV_);      }
 "("            { retornar (PARA_);     }
 ")"            { retornar (PARC_);     }
-"["	       	   { retornar (CORA_);     }
-"]"	       	   { retornar (CORC_);     }
-"{"	       	   { retornar (LLAVA_);    }
-"}"	       	   { retornar (LLAVC_);    }
-";"	       	   { retornar (PYC_);      }
-","	       	   { retornar (COMA_);     }
-"<"	       	   { retornar (MAYOR_);    }
-">"	       	   { retornar (MENOR_);    }
-"!"	       	   { retornar (NOT_);      }
+"["	       { retornar (CORA_);     }
+"]"	       { retornar (CORC_);     }
+"{"	       { retornar (LLAVA_);    }
+"}"	       { retornar (LLAVC_);    }
+";"	       { retornar (PYC_);      }
+","	       { retornar (COMA_);     }
+"<"	       { retornar (MAYOR_);    }
+">"	       { retornar (MENOR_);    }
+"!"	       { retornar (NOT_);      }
 
 
 "int"          { retornar (INT_);      }

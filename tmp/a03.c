@@ -15,7 +15,7 @@ int division(int x, int y)
   return x/y;
 }
 
-int main()
+/*int main()
 { int i;
 
   for (i=9; i>=0; i=i+1) a[i] = i;

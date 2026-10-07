@@ -50,11 +50,11 @@ tipoSimp
         ;
 
 declaFunc
-        : tipoSimp ID_ PARA_ paramForm PARC_ bloque
+        : tipoSimp ID_ PARA_ paramForm PARC_ bloque 
         ;
 
 paramForm
-        : /* lambda */
+        : 
         | listParamForm
         ;
 
@@ -68,12 +68,12 @@ bloque
         ;
 
 declaVarLocal
-        : /* lambda */
+        : 
         | declaVarLocal declaVar
         ;
 
 listInst
-        : /* lambda */
+        : 
         | listInst inst
         ;
 
@@ -121,7 +121,7 @@ instIter
         ;
 
 expreOP
-        : /* lambda */
+        : 
         | expre
         ;
 
@@ -170,7 +170,7 @@ expreSufi
         ;
 
 paramAct
-        : /* lambda */
+        : 
         | listParamAct
         ;
 
