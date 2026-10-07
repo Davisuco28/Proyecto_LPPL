@@ -28,7 +28,6 @@ comentario     "//".*
 {delimitador}  { if (verbosidad) ECHO; }
 {comentario}   { if (verbosidad) ECHO; }
 
-/*simbolso dobles*/
 
 "=="           { retornar (IGUAL_); }
 "!="           { retornar (DIF_); }
@@ -37,7 +36,6 @@ comentario     "//".*
 "&&"           { retornar (AND_); }
 "||"           { retornar (OR_); }
 
-/* simbolos de un simbolo*/
 
 "+"	       	   { retornar (MAS_);      }
 "="	       	   { retornar (ASIG_);     }
@@ -57,7 +55,6 @@ comentario     "//".*
 ">"	       	   { retornar (MENOR_);    }
 "!"	       	   { retornar (NOT_);      }
 
-/* palabras reservadas */
 
 "int"          { retornar (INT_);      }
 "bool"         { retornar (BOOL_);     }
@@ -73,7 +70,8 @@ comentario     "//".*
 "LESS"         { retornar (LESS_);     }
 "EQUAL"        { retornar (EQUAL_);    }
 "GREATER"      { retornar (GREATER_);  }
-/* Macros */
+
+
 {identificador} { retornar (ID_); }
 {real}          { retornar (CTE_); } 
 {entero}        { retornar (CTE_); }
