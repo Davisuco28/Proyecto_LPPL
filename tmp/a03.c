@@ -21,7 +21,7 @@ int division(int x, int y)
   for (i=9; i>=0; i=i+1) a[i] = i;
   read(x); read(y);
   if (((x >= 0) && (x <= 9)) && ((y >= 0) && (y <= 9)))
-    print(division(suma(a[x],a[y]),2));
+    print(division(suma(a[x],a[y]), 2));
   else {}
   
   return 0;
