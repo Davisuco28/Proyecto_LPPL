@@ -5,8 +5,9 @@
 #include <stdio.h>
 #include <string.h>
 #include "header.h"
+#include "asin.h"
 
-#define  retornar(x) {if (verbosidad) ECHO; }
+#define  retornar(x) {if (verbosidad) ECHO; return x;}
 %}
 /*-----------------------------------------------------------------------------
   Estas opciones evitan "warnings" innecesarios y permiten obtener el
@@ -50,8 +51,8 @@ comentario     "//".*
 "}"	       	   { retornar (LLAVC_);    }
 ";"	       	   { retornar (PYC_);      }
 ","	       	   { retornar (COMA_);     }
-"<"	       	   { retornar (MAYOR_);    }
-">"	       	   { retornar (MENOR_);    }
+"<"	       	   { retornar (MENOR_);    }
+">"	       	   { retornar (MAYOR_);    }
 "!"	       	   { retornar (NOT_);      }
 
 
