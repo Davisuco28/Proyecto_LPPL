@@ -9,12 +9,28 @@ extern int verbosidad;
 
 %}
 
+%union {
+    char *ident;
+    int cent;
+    struct {
+        int t;      /* tipo de la expresión */
+        int d;      /* desplazamiento/valor auxiliar */
+    } expre;
+    int tipo; 
+}
+
 %token INT_ BOOL_ TRUE_ FALSE_ IF_ ELSE_ FOR_ SWITCH_
 %token LESS_ EQUAL_ GREATER_ READ_ PRINT_ RETURN_
 %token AND_ OR_ IGUAL_ DIF_ MAYORIGUAL_ MENORIGUAL_ MAYOR_ MENOR_
 %token ASIG_ MAS_ MENOS_ POR_ DIV_ NOT_
 %token PARA_ PARC_ CORA_ CORC_ LLAVA_ LLAVC_ PYC_ COMA_
-%token ID_ CTE_
+
+%token <ident> ID_
+%token <cent> CTE_
+
+%type <tipo> tipoSimp const
+%type <expre> expre expreLogic expreIgual expreRel expreAd expreMul expreUna expreSufi expreOP
+%type <cent> opLogic opIgual opRel opAd opMul opUna
 
 %%
 
