@@ -17,6 +17,7 @@ int nMain = 0;
         int d;      /* desplazamiento/valor auxiliar */
     } expre;
     int tipo; 
+    struct { int ref; int talla; int err; } par;
 }
 
 %token INT_ BOOL_ TRUE_ FALSE_ IF_ ELSE_ FOR_ SWITCH_
