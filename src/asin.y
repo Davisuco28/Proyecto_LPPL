@@ -143,33 +143,144 @@ expreOP
 
 expre
         : expreLogic
+        {
+                $$.t = $1.t;
+        }
         | ID_ ASIG_ expre
+        {
+                SIMB sim = obtTdS($1);
+                if ($3.t == T_ERROR) {
+                        $$.t = T_ERROR;
+                }else if(sim.t == T_ERROR){
+                        $$.t = T_ERROR;
+                        yyerror("variable no declarada");
+                }else if((sim.t != T_ENTERO && sim.t != T_LOGICO) || sim.t != $3.t){
+
+                        $$.t = T_ERROR;
+                        yyerror("Error de tipos");
+                }else{
+                        $$.t = sim.t;
+                }
+        }
         | ID_ CORA_ expre CORC_ ASIG_ expre
+        {       SIMB sim = obtTdS($1);
+                if ($6.t == T_ERROR || $3.t == T_ERROR) {
+                        $$.t = T_ERROR;
+                }else if(sim.t == T_ERROR){
+                        $$.t = T_ERROR;
+                        yyerror("Variable no declarada");
+                }else if(sim.t != T_ARRAY){
+                        $$.t = T_ERROR;
+                        yyerror(" El tipo de la variable no es correcto ");
+                }else if ($3.t != T_ENTERO){
+                        $$.t = T_ERROR;
+                        yyerror(" El rango del array debe ser un entero ");
+
+                }else{
+                        DIM dim = obtTdA(sim.ref);
+                        if(dim.telem != $6.t){
+                                $$.t = T_ERROR;
+                                yyerror(" El tipo del Array y de la expresion no coinciden ");
+                        }else{
+                                $$.t = dim.telem;
+                        }
+                }
+                
+
+
+        }
         ;
 
 expreLogic
         : expreIgual
+        {
+                $$.t = $1.t;
+        }
         | expreLogic opLogic expreIgual
+        {
+                if ($1.t == T_ERROR || $3.t == T_ERROR) {
+                        $$.t = T_ERROR;
+                } else if (!($1.t == T_LOGICO && $3.t == T_LOGICO)) {
+                        yyerror("Los operadores deben ser booleanos");
+                        $$.t = T_ERROR;
+                } else {
+                        $$.t = T_LOGICO;
+                }
+        }
         ;
 
 expreIgual
         : expreRel
+        {
+                $$.t = $1.t;
+        }
         | expreIgual opIgual expreRel
+        {
+                if ($1.t == T_ERROR || $3.t == T_ERROR) {
+                        $$.t = T_ERROR;
+                } else if (!(($1.t == T_LOGICO && $3.t == T_LOGICO) ||($1.t == T_ENTERO && $3.t == T_ENTERO) )) {
+                        yyerror("Los operadores deben ser ambos del mismo tipo y booleanos o enteros");
+                        $$.t = T_ERROR;
+                } else {
+                        $$.t = T_LOGICO;
+                }
+        }
         ;
 
 expreRel
         : expreAd
+        {
+
+                $$.t = $1.t;
+        }
         | expreRel opRel expreAd
+        {
+                if($1.t == T_ERROR ||$3.t == T_ERROR ){
+                        $$.t = T_ERROR;
+                }
+                else if(!($1.t == T_ENTERO && $3.t == T_ENTERO)){
+                        yyerror("Los operadores deben ser Enteros");
+                        $$.t = T_ERROR;
+                        }else {
+                                $$.t = T_LOGICO;
+                        }
+        }
         ;
 
 expreAd
         : expreMul
+        {
+                $$.t = $1.t;
+        }
         | expreAd opAd expreMul
+        {
+                if ($1.t == T_ERROR || $3.t == T_ERROR) {
+                        $$.t = T_ERROR;
+                } else if (!($1.t == T_ENTERO && $3.t == T_ENTERO)) {
+                        yyerror("Los operadores deben ser enteros");
+                        $$.t = T_ERROR;
+                } else {
+                        $$.t = T_ENTERO;
+                }
+        }
         ;
 
 expreMul
         : expreUna
+        {
+                 $$.t = $1.t;
+        }
         | expreMul opMul expreUna
+        {
+               if ($1.t == T_ERROR || $3.t == T_ERROR) {
+                        $$.t = T_ERROR;
+                } else if (!($1.t == T_ENTERO && $3.t == T_ENTERO)) {
+                        yyerror("Los operadores deben ser enteros");
+                        $$.t = T_ERROR;
+                } else {
+                        $$.t = T_ENTERO;
+                } 
+        }
         ;
 
 expreUna
