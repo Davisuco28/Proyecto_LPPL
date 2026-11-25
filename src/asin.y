@@ -137,6 +137,13 @@ inst
 
 instSwitch
         : SWITCH_ ID_ LLAVA_ Less Equal Greater LLAVC_
+
+        {
+            SIMB sim = obtTdS($2);
+            if (sim.t != T_ENTERO) {
+                yyerror("El selector del SWITCH debe ser de tipo entero");
+            }
+        }
         ;
 
 Less
@@ -157,21 +164,42 @@ instExpre
         ;
 
 instEntSal
-        : READ_ PARA_ ID_ PARC_ PYC_
-        | PRINT_ PARA_ expre PARC_ PYC_
-        ;
+    : READ_ PARA_ ID_ PARC_ PYC_
+    {
+        SIMB sim = obtTdS($3);
+        if (sim.t != T_ENTERO) {
+            yyerror("La instruccion read requiere un identificador de tipo entero");
+        }
+    }
+    | PRINT_ PARA_ expre PARC_ PYC_
+    {
+        if ($3.t != T_ENTERO) {
+            yyerror("La instruccion print requiere una expresion de tipo entero");
+        }
+    }
+    ;
 
 instSelec
-        : IF_ PARA_ expre PARC_ inst ELSE_ inst
-        ;
+    : IF_ PARA_ expre PARC_ inst ELSE_ inst
+    {
+        if ($3.t != T_LOGICO) {
+            yyerror("La condicion del if debe ser de tipo logico (bool)");
+        }
+    }
+    ;
 
 instIter
-        : FOR_ PARA_ expreOP PYC_ expre PYC_ expreOP PARC_ inst
-        ;
+    : FOR_ PARA_ expreOP PYC_ expre PYC_ expreOP PARC_ inst
+    {
+        if ($5.t != T_LOGICO) {
+            yyerror("La condicion de control del for debe ser de tipo logico (bool)");
+        }
+    }
+    ;
 
 expreOP
-        : /* lambda */
-        | expre
+        : /* lambda */     { $$.t = T_VACIO; }
+        | expre            { $$ = $1; }
         ;
 
 expre
@@ -318,7 +346,25 @@ expreMul
 
 expreUna
         : expreSufi
+            { $$ = $1; }
         | opUna expreUna
+            {
+                if ($1 == 3) { // Operador NOT '!'
+                    if ($2.t != T_LOGICO) {
+                        yyerror("El operador ! requiere operando logico");
+                        $$.t = T_ERROR;
+                    } else {
+                        $$.t = T_LOGICO;
+                    }
+                } else { // Operadores unarios + o -
+                    if ($2.t != T_ENTERO) {
+                        yyerror("Operadores unarios + y - requieren operando entero");
+                        $$.t = T_ERROR;
+                    } else {
+                        $$.t = T_ENTERO;
+                    }
+                }
+            }
         ;
 
 expreSufi
@@ -367,9 +413,9 @@ opMul
         ;
 
 opUna
-        : MAS_
-        | MENOS_
-        | NOT_
+        : MAS_      { $$ = 1; }
+        | MENOS_    { $$ = 2; }
+        | NOT_      { $$ = 3; }
         ;
 
 %%
