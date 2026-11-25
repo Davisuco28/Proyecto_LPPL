@@ -6,7 +6,7 @@ extern int yylineno;
 extern int yylex(void);
 extern int verbosidad;
 
-
+int nMain = 0;
 %}
 
 %union {
@@ -99,21 +99,55 @@ tipoSimp
         ;
 
 declaFunc
-        : tipoSimp ID_ PARA_ paramForm PARC_ bloque
+        : tipoSimp ID_
+          { niv++; cargaContexto(niv);
+            $<cent>$ = dvar;               /* Guarda el dvar global */
+            dvar = 0;
+          }
+          PARA_ paramForm PARC_
+          { if (!insTdS($2, FUNCION, $1, niv-1, -1, $5.ref))
+              yyerror("Identificador de funcion repetido");
+            if (strcmp($2, "main") == 0) nMain++;
+          }
+          bloque
+          { if (verTdS) mostrarTdS();
+            descargaContexto(niv); niv--;
+            dvar = $<cent>3;               /* Restaura el dvar global */
+          }
         ;
 
 paramForm
         : /* lambda */
+          { $$.ref = insTdD(-1, T_VACIO); $$.talla = 0; $$.err = 0; }
         | listParamForm
+          { $$ = $1; }
         ;
 
 listParamForm
         : tipoSimp ID_
+          { $$.ref = insTdD(-1, $1);
+            $$.talla = TALLA_TIPO_SIMPLE; $$.err = 0;
+            if (!insTdS($2, PARAMETRO, $1, niv,
+                        -TALLA_SEGENLACES - $$.talla, -1))
+              yyerror("Identificador de parametro repetido");
+          }
         | tipoSimp ID_ COMA_ listParamForm
+          { $$.ref = insTdD($4.ref, $1);
+            $$.talla = $4.talla + TALLA_TIPO_SIMPLE; $$.err = 0;
+            if (!insTdS($2, PARAMETRO, $1, niv,
+                        -TALLA_SEGENLACES - $$.talla, -1))
+              yyerror("Identificador de parametro repetido");
+          }
         ;
 
 bloque
         : LLAVA_ declaVarLocal listInst RETURN_ expre PYC_ LLAVC_
+          { INF inf = obtTdD(-1);
+            if (inf.tipo == T_ERROR)
+              yyerror("Error en la declaracion de la funcion");
+            else if ($5.t != T_ERROR && inf.tipo != $5.t)
+              yyerror("Error de tipos en el 'return'");
+          }
         ;
 
 declaVarLocal
@@ -369,21 +403,66 @@ expreUna
 
 expreSufi
         : const
+          { $$ = $1; }
         | PARA_ expre PARC_
+          { $$ = $2; }
         | ID_
+          { SIMB sim = obtTdS($1);
+            $$.t = T_ERROR; $$.d = 0;
+            if (sim.t == T_ERROR)
+              yyerror("Objeto no declarado");
+            else if (sim.t != T_ARRAY && sim.ref >= 0)
+              yyerror("Una funcion no puede usarse como variable");
+            else $$.t = sim.t;
+          }
         | ID_ CORA_ expre CORC_
+          { SIMB sim = obtTdS($1);
+            $$.t = T_ERROR; $$.d = 0;
+            if (sim.t == T_ERROR)
+              yyerror("Objeto no declarado");
+            else if (sim.t != T_ARRAY)
+              yyerror("La variable debe ser de tipo array");
+            else {
+              if ($3.t != T_ERROR && $3.t != T_ENTERO)
+                yyerror("El indice del array debe ser entero");
+              $$.t = obtTdA(sim.ref).telem;
+            }
+          }
         | ID_ PARA_ paramAct PARC_
+          { SIMB sim = obtTdS($1);
+            $$.t = T_ERROR; $$.d = 0;
+            if (sim.t == T_ERROR)
+              yyerror("Objeto no declarado");
+            else if (sim.t == T_ARRAY || sim.ref < 0)
+              yyerror("El identificador no es una funcion");
+            else if (!$3.err) {
+              if (!cmpDom(sim.ref, $3.ref))
+                yyerror("En el dominio de los parametros actuales");
+              else $$.t = obtTdD(sim.ref).tipo;
+            }
+          }
         ;
 
 paramAct
         : /* lambda */
+          { $$.ref = insTdD(-1, T_VACIO); $$.talla = 0; $$.err = 0; }
         | listParamAct
+          { $$ = $1; }
         ;
 
 listParamAct
         : expre
+          { $$.ref = insTdD(-1, $1.t);
+            $$.talla = TALLA_TIPO_SIMPLE;
+            $$.err = ($1.t == T_ERROR);
+          }
         | expre COMA_ listParamAct
+          { $$.ref = insTdD($3.ref, $1.t);
+            $$.talla = $3.talla + TALLA_TIPO_SIMPLE;
+            $$.err = ($1.t == T_ERROR) || $3.err;
+          }
         ;
+
 
 opLogic
         : AND_
