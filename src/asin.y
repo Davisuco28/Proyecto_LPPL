@@ -35,7 +35,13 @@ extern int verbosidad;
 %%
 
 programa
-        : listDecla
+        : 
+        { niv = 0; dvar = 0; cargaContexto(niv); }
+          listDecla
+          { SIMB sim = obtTdS("main");
+            if (sim.t == T_ERROR) yyerror("No existe la función main");
+            if (verbosidad) mostrarTdS();
+          }
         ;
 
 listDecla
@@ -50,19 +56,46 @@ decla
 
 declaVar
         : tipoSimp ID_ PYC_
+
+        { if (!insTdS($2, VARIABLE, $1, niv, dvar, -1))
+              yyerror("Identificador repetido");
+          else dvar += TALLA_TIPO_SIMPLE;
+        }
+
+
         | tipoSimp ID_ ASIG_ const PYC_
+
+        { if ($4.t != T_ERROR && $4.t != $1)
+              yyerror("Error de tipos en la inicialización de la variable");
+          if (!insTdS($2, VARIABLE, $1, niv, dvar, -1))
+              yyerror("Identificador repetido");
+          else dvar += TALLA_TIPO_SIMPLE;
+        }
+        
+
         | tipoSimp ID_ CORA_ CTE_ CORC_ PYC_
+
+        { int numelem = $4;
+          if ($4 <= 0) {
+              yyerror("Talla inapropiada del array");
+              numelem = 0;
+          }
+          int refe = insTdA($1, numelem);
+          if (!insTdS($2, VARIABLE, T_ARRAY, niv, dvar, refe))
+              yyerror("Identificador repetido");
+          else dvar += numelem * TALLA_TIPO_SIMPLE;
+        }
         ;
 
 const
-        : CTE_
-        | TRUE_
-        | FALSE_
+        : CTE_   { $$.t = T_ENTERO; $$.d = $1; }
+        | TRUE_  { $$.t = T_LOGICO; $$.d = 1; }
+        | FALSE_ { $$.t = T_LOGICO; $$.d = 0; }
         ;
 
 tipoSimp
-        : INT_
-        | BOOL_
+        : INT_  { $$ = T_ENTERO; }
+        | BOOL_ { $$ = T_LOGICO; }
         ;
 
 declaFunc
