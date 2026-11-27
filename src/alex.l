@@ -1,8 +1,9 @@
 /*****************************************************************************/
-/**  Ejemplo de FLEX: S E M - 1           2023-2024 <jmbenedi@prhlt.upv.es> **/
+/**  Analizador lexico MenosC: S E M - 1                                    **/
 /*****************************************************************************/
 %{
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 #include "header.h"
 #include "asin.h"
@@ -13,22 +14,21 @@
   Estas opciones evitan "warnings" innecesarios y permiten obtener el
   numero de linea actual en la variable global "yylineno".
 -----------------------------------------------------------------------------*/
-%option noinput       
-%option nounput       
-%option yylineno  
+%option noinput
+%option nounput
+%option yylineno
 
 delimitador    [ \t\n]+
 digito         [0-9]
-entero         {digito}+ 
+entero         {digito}+
 char           [a-zA-Z_]
-identificador  {char}({char}|{digito}[-])*
-real         ({entero}([\,]|[\.]))|(([\,]|[\.]){entero})|({entero}([\,]|[\.]){entero})
+identificador  {char}({char}|{digito})*
+real           ({entero}"."{entero}?)|("."{entero})
 comentario     "//".*
 
 %%
 {delimitador}  { if (verbosidad) ECHO; }
 {comentario}   { if (verbosidad) ECHO; }
-
 
 "=="           { retornar (IGUAL_); }
 "!="           { retornar (DIF_); }
@@ -37,24 +37,22 @@ comentario     "//".*
 "&&"           { retornar (AND_); }
 "||"           { retornar (OR_); }
 
-
-"+"	       	   { retornar (MAS_);      }
-"="	       	   { retornar (ASIG_);     }
+"+"            { retornar (MAS_);      }
+"="            { retornar (ASIG_);     }
 "-"            { retornar (MENOS_);    }
 "*"            { retornar (POR_);      }
 "/"            { retornar (DIV_);      }
 "("            { retornar (PARA_);     }
 ")"            { retornar (PARC_);     }
-"["	       	   { retornar (CORA_);     }
-"]"	       	   { retornar (CORC_);     }
-"{"	       	   { retornar (LLAVA_);    }
-"}"	       	   { retornar (LLAVC_);    }
-";"	       	   { retornar (PYC_);      }
-","	       	   { retornar (COMA_);     }
-"<"	       	   { retornar (MENOR_);    }
-">"	       	   { retornar (MAYOR_);    }
-"!"	       	   { retornar (NOT_);      }
-
+"["            { retornar (CORA_);     }
+"]"            { retornar (CORC_);     }
+"{"            { retornar (LLAVA_);    }
+"}"            { retornar (LLAVC_);    }
+";"            { retornar (PYC_);      }
+","            { retornar (COMA_);     }
+"<"            { retornar (MENOR_);    }
+">"            { retornar (MAYOR_);    }
+"!"            { retornar (NOT_);      }
 
 "int"          { retornar (INT_);      }
 "bool"         { retornar (BOOL_);     }
@@ -71,12 +69,11 @@ comentario     "//".*
 "EQUAL"        { retornar (EQUAL_);    }
 "GREATER"      { retornar (GREATER_);  }
 
+{identificador} { yylval.ident = strdup(yytext); retornar (ID_); }
+{real}          { yylval.cent = (int) atof(yytext); retornar (CTE_); }
+{entero}        { yylval.cent = atoi(yytext);       retornar (CTE_); }
 
-{identificador} { retornar (ID_); }
-{real}          { retornar (CTE_); } 
-{entero}        { retornar (CTE_); }
-
-.	       { yyerror("Caracter desconocido"); }
+.              { yyerror("Caracter desconocido"); }
 
 %%
 /*****************************************************************************/
